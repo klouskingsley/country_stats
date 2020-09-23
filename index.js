@@ -1,0 +1,1 @@
+const populationEntity = require('./entity/population');
