@@ -4,7 +4,7 @@ const jsdom = require('jsdom')
 const fs = require('fs')
 const path = require('path')
 
-const pageUrl = 'https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA%E4%BA%BA%E5%8F%A3%E5%88%97%E8%A1%A8https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA%E4%BA%BA%E5%8F%A3%E5%88%97%E8%A1%A8'
+const pageUrl = 'https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA%E4%BA%BA%E5%8F%A3%E5%88%97%E8%A1%A8'
 
 const pophtml = fs.readFileSync(path.resolve(__dirname, './population.html')).toString()
 
@@ -25,48 +25,53 @@ const parseHTML = function (str) {
     }
 
     headers.forEach((hd, index) => {
-        console.log(hd.innerHTML)
         switch(hd.innerHTML) {
             case '排名':
                 data.headers['population_rank'] = {
                     index,
                     key: 'population_rank',
-                    title: '人口排名'
+                    title: '人口排名',
+                    type: 'number'
                 }
                 break;
             case '国家/地区':
                 data.headers['population_country'] = {
                     index,
                     key: 'population_country',
-                    title: '国家/地区'
+                    title: '国家/地区',
+                    type: 'country'
                 }
                 break
             case '人口':
                 data.headers['population_value'] = {
                     index,
                     key: 'population_value',
-                    title: '人口'
+                    title: '人口',
+                    type: 'number'
                 }
                 break;
             case '统计截至日期':
                 data.headers['population_date'] = {
                     index,
                     key: 'population_date',
-                    title: '人口统计截止日期'
+                    title: '人口统计截止日期',
+                    type: 'string'
                 }
                 break;
             case '占世界比':
                 data.headers['population_percentage'] = {
                     index,
                     key: 'population_percentage',
-                    title: '人口占世界比'
+                    title: '人口占世界比',
+                    type: 'number'
                 }
                 break
             case '来源':
                 data.headers['population_source'] = {
                     index,
                     key: 'population_source',
-                    title: '人口统计来源'
+                    title: '人口统计来源',
+                    type: 'link'
                 }
                 break
         }
@@ -91,13 +96,12 @@ const parseHTML = function (str) {
             return
         }
 
-        const rank = tds[0].innerHTML
+        const rank = tds[0].querySelector('i') ? tds[0].querySelector('i').innerHTML : tds[0].innerHTML
         const countryB = tds[1].querySelector('b') || tds[1].querySelector('i')
-        // console.log(tds[1].innerHTML)
         const countryLink = countryB.querySelector('a')
         let country
         if (countryLink) {
-            country = countryLink.innerHTML
+            country = countryLink.title
         } else {
             country = countryB.innerHTML
         }
@@ -109,8 +113,6 @@ const parseHTML = function (str) {
         const sourceLink = tds[5].querySelector('a')
         const sourceTitle = sourceLink.innerHTML
         const sourceUrl = sourceLink.href
-
-        
 
         const d = {
             population_rank: {
@@ -154,11 +156,10 @@ const parseHTML = function (str) {
 
 }
 
-parseHTML(pophtml)
-
-
 const getStat = function () {
     return parseHTML(pophtml)
 }
+
+// getStat()
 
 module.exports.getStat = getStat

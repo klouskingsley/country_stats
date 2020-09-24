@@ -48,7 +48,6 @@ const parseTable = function (table) {
                 break
         }
     })
-    console.log(rows.length)
     rows.forEach((row, index) => {
         const tds = row.querySelectorAll('td')
         if (!tds.length) {
@@ -110,8 +109,6 @@ const parseHTML = function (str) {
     })
     return data
 }
-
-parseHTML(pophtml)
 
 
 const getStat = function () {

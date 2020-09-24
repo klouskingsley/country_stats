@@ -19,7 +19,10 @@
   "homepage": "https://github.com/klouskingsley/country_stats#readme",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
+    "csv": "^5.3.2",
+    "csv-generate": "^3.2.4",
     "jsdom": "^16.4.0",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "xlsx": "^0.16.7"
   }
 }

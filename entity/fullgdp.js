@@ -11,9 +11,6 @@ const parseHTML = function (str) {
     const dom = new jsdom.JSDOM(str)
     const table = dom.window.document.querySelector('#mw-content-text > div.mw-parser-output > table.wikitable > tbody > tr:nth-child(2) > td:nth-child(3) > table')
     
-    // console.log(table.innerHTML.substr(0, 600));
-    // return
-
     const headers = [...table.querySelectorAll('tbody th')]
     const rows = [...table.querySelectorAll('tbody tr')]
     const data = {}
