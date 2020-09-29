@@ -2,6 +2,7 @@
 const jsdom = require('jsdom')
 const fs = require('fs')
 const path = require('path')
+const utils = require('../util/index')
 
 const pageUrl = 'https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E4%BA%BA%E5%9D%87%E5%9B%BD%E5%86%85%E7%94%9F%E4%BA%A7%E6%80%BB%E5%80%BC%E5%88%97%E8%A1%A8_(%E5%9B%BD%E9%99%85%E6%B1%87%E7%8E%87)'
 
@@ -18,6 +19,8 @@ const parseHTML = function (str) {
     data.headers = {}   // xxx: {index: 0, key: '', title: ''}
     data.data = []
     data.stat = {}
+    data.countryMapData = {}
+    data.countryList = []
 
     headers.forEach((hd, index) => {
         switch(hd.innerHTML) {
@@ -63,7 +66,7 @@ const parseHTML = function (str) {
                 type: 'number',
             },
             avggdp_country: {
-                value: country,
+                value: utils.countryConvert(country),
                 type: 'country',
             },
             avggdp_value: {
@@ -76,6 +79,8 @@ const parseHTML = function (str) {
             data.stat = d
         } else {
             data.data.push(d)
+            data.countryMapData[d.avggdp_country.value] = d
+            data.countryList.push(d.avggdp_country.value)
         }
     })
 

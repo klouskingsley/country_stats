@@ -3,6 +3,7 @@ const cheerio = require('cheerio')
 const jsdom = require('jsdom')
 const fs = require('fs')
 const path = require('path')
+const utils = require('../util/index')
 
 const pageUrl = 'https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E5%AE%B6%E5%92%8C%E5%9C%B0%E5%8C%BA%E4%BA%BA%E5%8F%A3%E5%88%97%E8%A1%A8'
 
@@ -23,6 +24,8 @@ const parseHTML = function (str) {
         population_rank: '',
         population_country: '世界'
     }
+    data.countryMapData = {}
+    data.countryList = []
 
     headers.forEach((hd, index) => {
         switch(hd.innerHTML) {
@@ -42,11 +45,11 @@ const parseHTML = function (str) {
                     type: 'country'
                 }
                 break
-            case '人口':
+            case '人口(百万)':
                 data.headers['population_value'] = {
                     index,
                     key: 'population_value',
-                    title: '人口',
+                    title: '人口(百万)',
                     type: 'number'
                 }
                 break;
@@ -106,7 +109,7 @@ const parseHTML = function (str) {
             country = countryB.innerHTML
         }
         const populationRaw = tds[2].innerHTML
-        const population = +populationRaw.replace(/,/g, '')
+        const population = +populationRaw.replace(/,/g, '') / 1000000
         const dateRaw = tds[3].innerHTML
         const percentageRaw = tds[4].innerHTML
         const percentage = parsePercentage(percentageRaw)
@@ -120,7 +123,7 @@ const parseHTML = function (str) {
                 type: 'number',
             },
             population_country: {
-                value: country,
+                value: utils.countryConvert(country),
                 type: 'country',
             },
             population_value: {
@@ -148,6 +151,8 @@ const parseHTML = function (str) {
             data.stat = d
         } else {
             data.data.push(d)
+            data.countryMapData[d.population_country.value] = d
+            data.countryList.push(d.population_country.value)
         }
 
     })

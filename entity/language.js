@@ -2,6 +2,7 @@
 const jsdom = require('jsdom')
 const fs = require('fs')
 const path = require('path')
+const utils = require('../util/index')
 
 const pageUrl = 'https://zh.wikipedia.org/zh-cn/%E5%90%84%E5%9B%BD%E5%AE%98%E6%96%B9%E8%AF%AD%E8%A8%80%E5%88%97%E8%A1%A8'
 
@@ -15,6 +16,8 @@ const parseTable = function (table) {
     data.headers = {}   // xxx: {index: 0, key: '', title: ''}
     data.data = []
     data.stat = {}
+    data.countryMapData = {}
+    data.countryList = []
 
     headers.forEach((hd, index) => {
         switch(hd.innerHTML) {
@@ -62,7 +65,7 @@ const parseTable = function (table) {
 
         const d = {
             language_country: {
-                value: country,
+                value: utils.countryConvert(country),
                 type: 'country',
             },
             language_official_value: {
@@ -83,8 +86,12 @@ const parseTable = function (table) {
             data.stat = d
         } else {
             data.data.push(d)
+            data.countryMapData[d.language_country.value] = d
+            data.countryList.push(d.language_country.value)
         }
     })
+
+
     return data
 }
 
@@ -92,12 +99,12 @@ const parseHTML = function (str) {
     const dom = new jsdom.JSDOM(str)
     const tableList = [...dom.window.document.querySelectorAll('#mw-content-text .mw-parser-output table.wikitable')]
 
-    const d = parseTable(tableList[0])
-
     const data = {
         headers: {},
         data: [],
-        stat: null
+        stat: null,
+        countryMapData: {},
+        countryList: []
     }
 
     tableList.forEach((table, index) => {
@@ -106,7 +113,10 @@ const parseHTML = function (str) {
             data.headers = d.headers
         }
         data.data = [...data.data, ...d.data]
+        data.countryMapData = {...data.countryMapData, ...d.countryMapData}
+        data.countryList = [...data.countryList, ...d.countryList]
     })
+    data.countryMapData
     return data
 }
 
